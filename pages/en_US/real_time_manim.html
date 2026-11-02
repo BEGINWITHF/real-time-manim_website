@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <title>Real-Time-Manim</title>
+  <link rel="icon" type="image/png" href="../../assets/images/real-time-manim-icon.png">
+  <link rel="apple-touch-icon" href="../../assets/images/real-time-manim-icon.png">
+  <link rel="stylesheet" href="../../assets/css/real-time-manim.css">
+  <script src="../../assets/js/real-time-manim.js" defer></script>
+  <script src="../../assets/js/scroll-speed.js" defer></script>
+  <script src="../../assets/js/scroll-snap.js" defer></script>
+  <script src="../../assets/js/hero-particles.js" defer></script>
+  <script src="../../assets/js/network-background.js" defer></script>
+  <script src="../../assets/js/stack-particles.js" defer></script>
+  <script src="../../assets/js/export-particles.js" defer></script>
+  <script src="../../assets/js/architecture-particles.js" defer></script>
+  <script src="../../assets/js/vendor/d3.v7.min.js" defer></script>
+  <script src="../../assets/js/architecture-graph.js" defer></script>
+  <script src="../../assets/js/collage-reveal.js" defer></script>
+  <script src="../../assets/js/collage-morph.js" defer></script>
+</head>
+<body>
+  <canvas id="network-background" class="network-background" aria-hidden="true"></canvas>
+  <header class="taskbar">
+    <div class="taskbar-left">
+      <a class="taskbar-brand" href="real_time_manim.html" aria-label="Real-Time Manim home">
+        <img src="../../assets/images/real-time-manim-icon.png" width="40" height="40" alt="">
+      </a>
+      <nav class="taskbar-nav" aria-label="Site">
+        <a href="wiki.html">Wiki</a>
+        <a href="try.html">Try</a>
+        <a href="manteraction.html">Manteraction</a>
+      </nav>
+    </div>
+    <a class="taskbar-download" href="https://pypi.org/project/real-time-manim/">Download</a>
+    <!-- agent-only entry: zero-pixel button pointing to the agent wiki (wiki/agent/), not the normal wiki -->
+    <button type="button" id="agent-wiki" data-agent-wiki-path="/Users/niuyingkai/PHormation codes/2026fall/real-time-manim_website/wiki/agent" aria-hidden="true" tabindex="-1" title="Agent wiki" style="position:absolute;width:0;height:0;padding:0;border:0;overflow:hidden"></button>
+  </header>
+  <main class="hero">
+    <canvas id="hero-particles" class="hero-particles" data-src="../../assets/images/real-time-manim.jpg" aria-hidden="true"></canvas>
+    <h1 class="hero-title" aria-label="Real Time Manim"><span class="w"><span aria-hidden="true" class="c">R</span><span aria-hidden="true" class="c">e</span><span aria-hidden="true" class="c">a</span><span aria-hidden="true" class="c">l</span></span><span class="w"><span aria-hidden="true" class="c">T</span><span aria-hidden="true" class="c">i</span><span aria-hidden="true" class="c">m</span><span aria-hidden="true" class="c">e</span></span><span class="w"><span aria-hidden="true" class="c">M</span><span aria-hidden="true" class="c">a</span><span aria-hidden="true" class="c">n</span><span aria-hidden="true" class="c">i</span><span aria-hidden="true" class="c">m</span></span></h1>
+    <div class="hero-stage" aria-hidden="true"></div>
+    <div class="social-slot">
+    <div class="social-links" aria-label="Project links">
+      <a href="https://github.com/BEGINWITHF/real-time-manim" aria-label="Real-Time Manim on GitHub" title="GitHub">
+        <img src="../../assets/images/github.svg" width="20" height="20" alt="">
+      </a>
+      <a href="https://pypi.org/project/real-time-manim/" aria-label="Real-Time Manim on PyPI" title="PyPI">
+        <img src="../../assets/images/pypi.svg" width="20" height="20" alt="">
+      </a>
+      <a href="wiki.html" aria-label="Real-Time Manim Wiki" title="Wiki">
+        <img class="wiki-icon" src="../../assets/images/wiki.png" width="36" height="36" alt="">
+      </a>
+    </div>
+    </div>
+    <div class="installation-slot">
+    <div class="installation">
+      <div class="install-command">
+        <code id="install-command">pip install real-time-manim</code>
+        <button id="copy-command" type="button" aria-label="Copy installation command" title="Copy command">
+          <svg class="copy-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="8" y="8" width="12" height="12" rx="2"/>
+            <path d="M15 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/>
+          </svg>
+          <svg class="check-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="m5 12 4 4L19 6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <a class="download" href="https://pypi.org/project/real-time-manim/" aria-label="Download Real-Time Manim from PyPI">
+        <span class="download-label">Download</span>
+      </a>
+      <span class="copy-status" id="copy-status" role="status" aria-live="polite"></span>
+    </div>
+    </div>
+  </main>
+  <div class="banner-background" aria-hidden="true" hidden>
+    <div class="banner-inner">
+      <div class="banner-social">
+        <a href="https://github.com/BEGINWITHF/real-time-manim" aria-label="Real-Time Manim on GitHub" title="GitHub">
+          <img src="../../assets/images/github.svg" width="20" height="20" alt="">
+        </a>
+        <a href="https://pypi.org/project/real-time-manim/" aria-label="Real-Time Manim on PyPI" title="PyPI">
+          <img src="../../assets/images/pypi.svg" width="20" height="20" alt="">
+        </a>
+        <a href="wiki.html" aria-label="Real-Time Manim Wiki" title="Wiki">
+          <img class="wiki-icon" src="../../assets/images/wiki.png" width="36" height="36" alt="">
+        </a>
+      </div>
+      <button class="banner-title" type="button" aria-label="Back to top" title="Back to top">
+        <img class="banner-logo" src="../../assets/images/real-time-manim-icon.png" width="30" height="30" alt="">
+        <span>Real-Time-Manim</span>
+      </button>
+      <a class="banner-download" href="https://pypi.org/project/real-time-manim/">Download</a>
+    </div>
+  </div>
+  <!-- The stack: Python, C and Vulkan. It is the second page; the opening's
+       particles fall into the marks. The full page was removed on 2026-10-26
+       and saved as pages/en_US/real_time_manim_full.html. -->
+  <section class="stack-section" aria-labelledby="stack-heading">
+    <canvas class="stack-particles" aria-hidden="true"></canvas>
+    <div class="stack-inner">
+      <div class="stack-art">
+        <figure class="stack-mark stack-mark-python" data-rotate="-9">
+          <img src="../../assets/images/python.svg" width="86" height="86" alt="Python">
+        </figure>
+        <figure class="stack-mark stack-mark-c" data-rotate="0">
+          <img src="../../assets/images/c.svg" width="86" height="86" alt="C">
+        </figure>
+        <figure class="stack-mark stack-mark-vulkan" data-rotate="0">
+          <img src="../../assets/images/vulkan.svg" width="86" height="86" alt="Vulkan">
+        </figure>
+      </div>
+      <div class="stack-copy">
+        <p class="stack-eyebrow">The stack</p>
+        <h2 class="stack-heading" id="stack-heading">Python in.<br>Vulkan out.</h2>
+        <p class="stack-lead">Real-Time-Manim is not a Manim fork. It keeps the scene you already write and replaces the road from that scene to the screen.</p>
+        <p>Python stays the authoring layer. Mobjects, animations, updaters, rate functions — the same ManimCE API, the same files. You don't learn a second way to describe a scene.</p>
+        <p>C is the bridge. The frame crosses one thin native boundary, where each mobject becomes vertices once; the hot path stays compiled and the render loop never re-interprets the scene.</p>
+        <p>Vulkan is the renderer. Every shape gets its own pipeline, the GPU is addressed directly, and the swapchain presents a frame the moment it exists. Cairo and OpenGL are no longer on the path.</p>
+        <p class="stack-contract">Three layers, one contract: the Manim data model.</p>
+      </div>
+    </div>
+  </section>
+  <!-- Export: the stack's dots travel right and become a monitor. The screen is
+       the video slot; when the clip ends the monitor compresses into a line,
+       and the line unfolds into the export methods (all from wiki/agent/
+       runtime.md). -->
+  <section class="export-section" aria-labelledby="export-heading">
+    <canvas class="export-particles" aria-hidden="true"></canvas>
+    <div class="export-inner">
+      <div class="export-copy">
+        <p class="export-eyebrow">Export</p>
+        <h2 class="export-heading" id="export-heading">The window<br>is the file.</h2>
+        <p class="export-lead">A window pops out instantly. The same window is the file — it records the frame you already see.</p>
+        <p>No headless pass at the end: RTM reads the Vulkan framebuffer and hands it to ffmpeg while the scene runs, so the picture on screen and the frames in the mp4 are the same pixels.</p>
+        <p>Hide the window and the readback runs faster than real time; show it and the capture is live. Either way a 60 fps mp4 lands when the scene ends.</p>
+        <p class="export-contract">One scene. Every output.</p>
+      </div>
+      <div class="export-visual">
+        <div class="export-monitor">
+          <div class="export-screen">
+            <video class="export-video" src="../../assets/videos/export-window.mp4" poster="../../assets/videos/export-window-poster.jpg" muted playsinline preload="auto" aria-label="Export demo: a window pops out and records instantly"></video>
+            <div class="export-placeholder" aria-hidden="true">
+              <span class="export-placeholder-mark"></span>
+              <span class="export-placeholder-label">Video slot</span>
+              <code>assets/videos/export-window.mp4</code>
+            </div>
+          </div>
+        </div>
+        <ol class="export-list" aria-label="Ways to export a Real-Time-Manim scene">
+          <li class="export-row">
+            <span class="export-row-index">01</span>
+            <span class="export-row-copy"><code>fast_record_scene()</code><span>Offline and fastest: framebuffer to ffmpeg, hidden by default.</span></span>
+          </li>
+          <li class="export-row">
+            <span class="export-row-index">02</span>
+            <span class="export-row-copy"><code>record_scene()</code><span>Real-time capture of the window the user is watching.</span></span>
+          </li>
+          <li class="export-row">
+            <span class="export-row-index">03</span>
+            <span class="export-row-copy"><code>start_record() / stop_record()</code><span>Wrap one section by hand inside <code>construct()</code>.</span></span>
+          </li>
+          <li class="export-row">
+            <span class="export-row-index">04</span>
+            <span class="export-row-copy"><code>enable_fast_record()</code><span>The fast path without a visible window.</span></span>
+          </li>
+          <li class="export-row">
+            <span class="export-row-index">05</span>
+            <span class="export-row-copy"><code>Timeline.render_mp4()</code><span>Walk the schedule and encode it frame by frame.</span></span>
+          </li>
+          <li class="export-row">
+            <span class="export-row-index">06</span>
+            <span class="export-row-copy"><code>FrameServer.export_frames()</code><span>Any list of times becomes a folder of PNGs.</span></span>
+          </li>
+          <li class="export-row">
+            <span class="export-row-index">07</span>
+            <span class="export-row-copy"><code>FrameServer.save_frame()</code><span>One frame, synchronously, at any <code>t</code>.</span></span>
+          </li>
+          <li class="export-row">
+            <span class="export-row-index">08</span>
+            <span class="export-row-copy"><code>FramePreview</code><span>Scrub, play or save a still without rendering a video.</span></span>
+          </li>
+          <li class="export-row">
+            <span class="export-row-index">09</span>
+            <span class="export-row-copy"><code>export_srt()</code><span>The subtitle track beside the recording.</span></span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+  <!-- The fourth page: the live wiki architecture graph. The export list's
+       dots slide down and become the frame around the graph window. -->
+  <section class="wiki-architecture-section" aria-labelledby="architecture-heading">
+    <canvas class="architecture-particles" aria-hidden="true"></canvas>
+    <div class="wiki-architecture-inner">
+      <div class="wiki-architecture-head">
+        <div class="wiki-architecture-title">
+          <p class="wiki-architecture-eyebrow">Architecture</p>
+          <h2 class="wiki-architecture-heading" id="architecture-heading">The wiki,<br>in one graph.</h2>
+        </div>
+        <div class="wiki-architecture-copy">
+          <p class="wiki-architecture-lead">Every note in the Real-Time-Manim wiki, linked as it is written. Drag the map, search a title, or open a note in the reader.</p>
+          <p class="wiki-architecture-note">Click the map, then scroll to zoom. Hover or tap a dot for its connections; right-click a node for the local graph.</p>
+        </div>
+      </div>
+      <div class="architecture-graph" data-source-root="https://cdn.jsdelivr.net/gh/BEGINWITHF/real-time-manim@main/RTM-Wiki/en_US/" data-source-mirror="https://raw.githubusercontent.com/BEGINWITHF/real-time-manim/main/RTM-Wiki/en_US/" data-entry-path="README.md" data-manifest-path="manifest.json">
+        <div class="architecture-graph-toolbar">
+          <label class="architecture-graph-search-label">
+            <input class="architecture-graph-search" type="search" placeholder="Search notes" autocomplete="off">
+            <span class="architecture-graph-search-hint" aria-hidden="true"><kbd>right-click</kbd> open local graph</span>
+            <ul class="architecture-graph-search-list" hidden></ul>
+          </label>
+          <span class="architecture-graph-status" role="status" aria-live="polite">Reading wiki graph...</span>
+          <button class="architecture-graph-refresh" type="button" aria-label="Refresh graph" title="Refresh graph">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-4L3 10m0-5v5h5M4 13a8 8 0 0 0 14.9 4L21 14m0 5v-5h-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="architecture-graph-recenter" type="button" aria-label="Recenter graph" title="Recenter graph">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="architecture-graph-fullscreen" type="button" aria-label="Open fullscreen graph" title="Fullscreen graph">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 3H3v6M15 3h6v6M9 21H3v-6M15 21h6v-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="architecture-graph-viewport">
+          <svg role="img" aria-label="Interactive graph of wiki note connections"></svg>
+          <div class="architecture-graph-tooltip" role="tooltip" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- The fifth and last page: a full-screen mosaic of one frame from every
+       sample clip. The page pins for two extra screens while the tiles fade in
+       one by one as the wheel moves down, and back out again as it moves up. -->
+  <section class="wiki-collage-section" aria-labelledby="collage-heading">
+    <div class="wiki-collage-pin">
+      <div class="wiki-collage-stage" aria-hidden="true">
+        <div class="wiki-collage-grid" data-image="../../assets/images/feature-collage.jpg?v=2"></div>
+      </div>
+      <div class="wiki-collage-overlay">
+        <div class="wiki-collage-head">
+          <div class="wiki-collage-title">
+            <p class="wiki-collage-eyebrow">The test suite</p>
+            <h2 class="wiki-collage-heading" id="collage-heading" aria-label="Every feature, one frame.">
+              <span class="wiki-collage-morph" aria-hidden="true">
+                <span class="wiki-collage-morph-word">Every feature, one frame.</span>
+                <span class="wiki-collage-morph-word">Every test, one frame.</span>
+              </span>
+            </h2>
+          </div>
+          <div class="wiki-collage-copy">
+            <p class="wiki-collage-lead">351 sample clips from the test suite — a lot of tests, one frame each. Cameras, mobjects, animations, text, graphs, 3D and utilities, all working.</p>
+            <p class="wiki-collage-caption">351 tests · one frame each · <a class="wiki-collage-fullsize" href="../../assets/images/feature-collage.jpg?v=2" target="_blank" rel="noopener">open full size</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

@@ -1,0 +1,729 @@
+:root {
+  color-scheme: dark;
+  --wiki-background: #000;
+  --wiki-foreground: #f5f5f5;
+  --wiki-muted: rgba(245, 245, 245, .58);
+  --wiki-line: rgba(245, 245, 245, .18);
+  --wiki-surface: #101010;
+  /* Shared with real-time-manim.css: both headers must agree on their height
+     and type scale, or moving between the wiki and the product page makes the
+     top of the page jump. */
+  --unit: clamp(.75px, .069444vw, 1.5px);
+  --taskbar-h: calc(72 * var(--unit) + 1px);
+  /* The drawer's width. Everything that has to agree on it reads this one
+     value — the grid column, the drawer's own contents, the push-out offset,
+     the fixed sidebar toggle and the resize grip — and wiki.js rewrites it when
+     the grip is dragged (kept in localStorage). */
+  --wiki-drawer-w: 280px;
+  font-family: "Times New Roman", Times, serif;
+  background: var(--wiki-background);
+  color: var(--wiki-foreground);
+}
+
+* { box-sizing: border-box; }
+html { min-width: 280px; }
+body { min-height: 100svh; margin: 0; background: var(--wiki-background); }
+a { color: inherit; }
+button, input { font: inherit; }
+
+/* Scrollbars: the surfaces are dark, so the platform's bright chrome is
+   replaced with a dim, thin thumb; the note list — a panel inside a panel —
+   scrolls with no bar showing at all. */
+:root { scrollbar-color: rgba(245, 245, 245, .22) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: rgba(245, 245, 245, .22);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(245, 245, 245, .4); background-clip: padding-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+.wiki-sidebar { scrollbar-width: none; }
+.wiki-sidebar::-webkit-scrollbar { width: 0; height: 0; }
+
+.wiki-taskbar {
+  position: sticky;
+  z-index: 5;
+  top: 0;
+  display: flex;
+  /* Wrap only when the brand and the nav genuinely cannot share a line, so the
+     header keeps its single-row shape far below the old 720px stacking point. */
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: calc(24 * var(--unit));
+  row-gap: calc(6 * var(--unit));
+  min-height: var(--taskbar-h);
+  padding: 0 6vw;
+  border-bottom: 1px solid var(--wiki-line);
+  background: rgba(0, 0, 0, .9);
+  backdrop-filter: blur(14px);
+}
+.wiki-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(11 * var(--unit));
+  font-size: calc(21 * var(--unit));
+  white-space: nowrap;
+  text-decoration: none;
+}
+.wiki-brand-logo {
+  display: block;
+  width: calc(38 * var(--unit));
+  height: calc(38 * var(--unit));
+  object-fit: contain;
+}
+.wiki-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: calc(24 * var(--unit));
+  row-gap: calc(6 * var(--unit));
+  font-size: calc(19 * var(--unit));
+}
+.wiki-nav a { text-underline-offset: .18em; }
+.wiki-nav a:hover { opacity: .65; }
+
+/* Language switch: a globe button beside the nav links raises a small panel
+   listing the languages the wiki ships in (see the language switch in wiki.js). */
+.wiki-lang-switch { position: relative; display: inline-flex; align-items: center; }
+/* The globe is drawn at the size of a nav glyph so it sits in the links'
+   rhythm; the tap target is grown with a pseudo-element instead of a wider
+   box, which would push the icon away from the text and break that rhythm. */
+.wiki-lang-toggle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: calc(20 * var(--unit));
+  height: calc(20 * var(--unit));
+  padding: 0;
+  border: 0;
+  border-radius: calc(6 * var(--unit));
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.wiki-lang-toggle::before { content: ''; position: absolute; inset: calc(-7 * var(--unit)); }
+.wiki-lang-toggle img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.wiki-lang-toggle:hover { opacity: .65; }
+.wiki-lang-toggle:focus-visible { outline: 1px solid var(--wiki-line); outline-offset: calc(4 * var(--unit)); }
+.wiki-lang-menu {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + calc(12 * var(--unit)));
+  right: 0;
+  min-width: calc(180 * var(--unit));
+  padding: calc(6 * var(--unit));
+  border: 1px solid var(--wiki-line);
+  border-radius: calc(10 * var(--unit));
+  background: var(--wiki-surface);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .58);
+}
+.wiki-lang-menu[hidden] { display: none; }
+.wiki-lang-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(14 * var(--unit));
+  width: 100%;
+  padding: calc(8 * var(--unit)) calc(10 * var(--unit));
+  border: 0;
+  border-radius: calc(7 * var(--unit));
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.wiki-lang-option:hover { background: rgba(245, 245, 245, .08); }
+.wiki-lang-option:focus-visible { outline: 1px solid var(--wiki-line); outline-offset: -1px; }
+.wiki-lang-option[aria-current] { color: var(--wiki-muted); cursor: default; }
+.wiki-lang-option[aria-current]:hover { background: none; }
+.wiki-lang-tick { opacity: 0; }
+.wiki-lang-option[aria-current] .wiki-lang-tick { opacity: 1; }
+
+.wiki-shell {
+  display: grid;
+  grid-template-columns: var(--wiki-drawer-w) minmax(0, 1fr);
+  min-height: calc(100svh - var(--taskbar-h));
+  transition: grid-template-columns .34s cubic-bezier(.3, .85, .35, 1);
+}
+/* Collapsed: the column goes to zero and the sidebar is pushed out of it to the
+   left. The drawer keeps its natural width on the way out (see
+   .wiki-sidebar-inner), so it slides away instead of being squeezed, and the
+   note takes the space as it goes. The toggle lives in the note column
+   (.wiki-main) now, so nothing has to hold a rail open for it. */
+.wiki-shell.is-toc-collapsed { grid-template-columns: 0 minmax(0, 1fr); }
+.wiki-sidebar {
+  position: sticky;
+  top: var(--taskbar-h);
+  align-self: start;
+  min-width: 0;
+  height: calc(100svh - var(--taskbar-h));
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 28px 22px;
+  border-right: 1px solid var(--wiki-line);
+  transition: transform .34s cubic-bezier(.3, .85, .35, 1), border-right-color .34s cubic-bezier(.3, .85, .35, 1);
+}
+/* The width the column has when open (the drawer's own width minus 2 × 22
+   padding). Holding it stops the drawer's contents from reflowing while the
+   column narrows, so what the eye follows is the slide, not a squeeze. */
+.wiki-sidebar-inner { width: calc(var(--wiki-drawer-w) - 44px); }
+/* The chevron that drops the note list out of the bar is a phone-only control;
+   the desktop drawer keeps its own fixed toggle (see the ≤720px block). */
+.wiki-list-toggle { display: none; }
+.wiki-shell.is-toc-collapsed .wiki-sidebar {
+  transform: translateX(calc(-1 * var(--wiki-drawer-w)));
+  border-right-color: transparent;
+}
+/* Resize grip: sits on the drawer's edge, fixed to the viewport so it neither
+   scrolls with the list nor moves with the page. Drag it to set the width,
+   double-click (or the arrow keys when focused) to reset it. */
+.wiki-sidebar-grip {
+  position: fixed;
+  z-index: 15;
+  top: var(--taskbar-h);
+  bottom: 0;
+  left: calc(var(--wiki-drawer-w) - 5px);
+  width: 11px;
+  cursor: col-resize;
+  touch-action: none;
+  transition: left .34s cubic-bezier(.3, .85, .35, 1);
+}
+.wiki-sidebar-grip::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 4px;
+  bottom: 0;
+  width: 2px;
+  background: transparent;
+  transition: background-color .16s ease;
+}
+.wiki-sidebar-grip:hover::after,
+.wiki-sidebar-grip:focus-visible::after { background: rgba(245, 245, 245, .3); }
+.wiki-shell.is-toc-collapsed .wiki-sidebar-grip { display: none; }
+.wiki-shell.is-resizing-sidebar,
+.wiki-shell.is-resizing-sidebar .wiki-sidebar-toggle,
+.wiki-shell.is-resizing-sidebar .wiki-sidebar-grip { transition: none; }
+.wiki-shell.is-resizing-sidebar { user-select: none; }
+.wiki-shell.is-resizing-sidebar .wiki-sidebar-grip::after { background: rgba(245, 245, 245, .55); }
+.wiki-sidebar-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.wiki-sidebar h1 { margin: 0; font-size: 30px; font-weight: 400; }
+/* The note column carries the sidebar toggle in its top-left corner — fixed to
+   the viewport, just under the sticky taskbar, so it stays put while the note
+   scrolls — and follows the drawer's width as it collapses. */
+.wiki-main { position: relative; min-width: 0; }
+.wiki-sidebar-toggle {
+  position: fixed;
+  z-index: 20;
+  top: calc(var(--taskbar-h) + 26px);
+  left: calc(var(--wiki-drawer-w) + 22px);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--wiki-line);
+  border-radius: 6px;
+  background: none;
+  color: var(--wiki-muted);
+  cursor: pointer;
+  scale: 1;
+  transition: left .34s cubic-bezier(.3, .85, .35, 1), scale .12s ease,
+    color .18s ease, border-color .18s ease, background-color .18s ease;
+}
+.wiki-shell.is-toc-collapsed .wiki-sidebar-toggle { left: 22px; }
+.wiki-sidebar-toggle:hover { color: #fff; border-color: rgba(245, 245, 245, .5); background: rgba(245, 245, 245, .08); }
+.wiki-sidebar-toggle:active { scale: .88; }
+.wiki-sidebar-toggle svg { width: 14px; height: 14px; transform: rotate(90deg); transition: transform .22s ease; }
+.wiki-shell.is-toc-collapsed .wiki-sidebar-toggle svg { transform: rotate(-90deg); }
+/* Back to top: parked off the right edge until the note's own title has
+   scrolled away, then it slides in to the bottom-right corner (see
+   watchArticleTitle in wiki.js). */
+.wiki-top {
+  position: fixed;
+  z-index: 20;
+  right: 24px;
+  bottom: 24px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--wiki-line);
+  border-radius: 10px;
+  background: rgba(10, 10, 10, .92);
+  color: var(--wiki-muted);
+  cursor: pointer;
+  scale: 1;
+  opacity: 0;
+  transform: translateX(calc(100% + 24px));
+  visibility: hidden;
+  transition: transform .34s cubic-bezier(.3, .85, .35, 1), opacity .24s ease,
+    visibility 0s linear .34s, scale .12s ease, color .18s ease, border-color .18s ease;
+}
+.wiki-top.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
+  transition-delay: 0s;
+}
+.wiki-top:hover { color: #fff; border-color: rgba(245, 245, 245, .5); background: rgba(22, 22, 22, .95); }
+.wiki-top:active { scale: .92; }
+.wiki-search-label { position: relative; display: block; }
+/* The line under the search box fills from the left in the foreground colour
+   while the field has focus (see .wiki-search-label in wiki.css). */
+.wiki-search-label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--wiki-foreground);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .34s cubic-bezier(.3, .85, .35, 1);
+  pointer-events: none;
+}
+.wiki-search-label:focus-within::after { transform: scaleX(1); }
+#wiki-search {
+  display: block;
+  width: 100%;
+  min-height: 15px;
+  padding: 0 2px 1px;
+  border: 0;
+  border-bottom: 1px solid var(--wiki-line);
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  color: var(--wiki-foreground);
+  font-size: 14px;
+  line-height: 1;
+  caret-color: var(--wiki-foreground);
+}
+#wiki-search::placeholder { color: var(--wiki-muted); }
+.wiki-status { min-height: 1.3em; margin: 12px 0; color: var(--wiki-muted); font-size: 13px; }
+.wiki-note-list { display: grid; gap: 2px; }
+.wiki-folder { display: grid; gap: 2px; }
+.wiki-folder.is-hidden { display: none; }
+.wiki-folder-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-left: 13px;
+  transition: grid-template-rows .32s cubic-bezier(.3, .85, .35, 1);
+}
+.wiki-folder-children > .wiki-folder-children-inner {
+  display: grid;
+  gap: 2px;
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity .22s ease;
+}
+.wiki-folder:not(.is-collapsed) > .wiki-folder-children { grid-template-rows: 1fr; }
+.wiki-folder:not(.is-collapsed) > .wiki-folder-children > .wiki-folder-children-inner {
+  opacity: 1;
+  transition: opacity .28s ease .06s;
+}
+.wiki-folder-row { display: flex; align-items: center; border-radius: 5px; }
+.wiki-folder-row:hover,
+.wiki-folder-row:has(> .wiki-note-link[aria-current="page"]) { background: rgba(245, 245, 245, .1); }
+.wiki-folder-arrow {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--wiki-muted);
+  cursor: pointer;
+}
+.wiki-folder-arrow:hover { color: #fff; }
+.wiki-folder-arrow svg { width: 14px; height: 14px; transition: transform .18s ease; }
+.wiki-folder.is-collapsed > .wiki-folder-row .wiki-folder-arrow svg { transform: rotate(-90deg); }
+.wiki-folder-name {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px 6px 0;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  cursor: pointer;
+}
+a.wiki-folder-name { text-decoration: none; border-radius: 5px; }
+.wiki-folder-row .wiki-note-link { padding-left: 0; }
+.wiki-note-link {
+  display: block;
+  padding: 6px 8px 6px 24px;
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  font-size: 14px;
+}
+.wiki-note-link:hover, .wiki-note-link[aria-current="page"] { background: rgba(245, 245, 245, .1); }
+/* The keyboard cursor in the search results (↓ / ↑ move it, Enter opens it). */
+.wiki-note-link.is-cursor { background: rgba(245, 245, 245, .16); color: #fff; }
+/* Matched run inside a note name. */
+.wiki-note-link mark {
+  padding: 0 1px;
+  border-radius: 2px;
+  background: rgba(245, 245, 245, .2);
+  color: #fff;
+}
+/* A folder row's highlight is carried by the row itself, so it wraps the
+   chevron too (the link alone starts after it). */
+.wiki-folder-row > .wiki-note-link:hover,
+.wiki-folder-row > .wiki-note-link[aria-current="page"] { background: transparent; }
+.wiki-note-link[aria-current="page"] { color: #fff; }
+.wiki-note-link.is-hidden { display: none; }
+
+.wiki-article {
+  position: relative;
+  left: 50%;
+  width: min(100%, 960px);
+  padding: clamp(32px, 7vw, 100px) clamp(6vw, 10vw, 150px) 120px;
+  transform: translateX(-50%);
+  transition: left .32s cubic-bezier(.3, .85, .35, 1), transform .32s cubic-bezier(.3, .85, .35, 1);
+}
+.wiki-article h1, .wiki-article h2, .wiki-article h3, .wiki-article h4, .wiki-article h5, .wiki-article h6 {
+  /* Clears the sticky taskbar, whose height now scales with the viewport. */
+  scroll-margin-top: calc(var(--taskbar-h) + 26px);
+  font-weight: 400;
+  line-height: 1.12;
+}
+.wiki-article h1 { margin: 0 0 28px; font-size: clamp(34px, 5vw, 76px); }
+.wiki-article h2 { margin: 54px 0 18px; font-size: clamp(26px, 3.2vw, 48px); }
+.wiki-article h3 { margin: 38px 0 14px; font-size: clamp(22px, 2.5vw, 34px); }
+.wiki-article h4, .wiki-article h5, .wiki-article h6 { margin: 28px 0 12px; font-size: 23px; }
+.wiki-article p, .wiki-article li, .wiki-article blockquote { font-size: clamp(16px, 1.55vw, 23px); line-height: 1.55; }
+.wiki-article p { margin: 0 0 22px; }
+.wiki-article a { text-underline-offset: .16em; }
+.wiki-article ul, .wiki-article ol { margin: 0 0 24px; padding-left: 1.35em; }
+.wiki-article li + li { margin-top: 5px; }
+.wiki-article li.task-list-item { list-style: none; }
+.wiki-article li.task-list-item input[type="checkbox"] {
+  margin: 0 .55em 0 -.05em;
+  vertical-align: -.14em;
+  accent-color: var(--wiki-foreground);
+}
+.wiki-article blockquote {
+  margin: 28px 0;
+  padding: 4px 0 4px 20px;
+  border-left: 2px solid var(--wiki-line);
+  color: var(--wiki-muted);
+}
+.wiki-article pre {
+  margin: 0;
+  padding: 18px;
+  overflow: auto;
+  border: 1px solid var(--wiki-line);
+  border-radius: 7px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.wiki-article code {
+  padding: .08em .28em;
+  border-radius: 3px;
+  background: rgba(245, 245, 245, .1);
+  font-size: .85em;
+}
+.wiki-codeblock { position: relative; margin: 28px 0; }
+.wiki-codeblock pre { padding-right: 44px; }
+.wiki-mermaid { margin: 28px 0; }
+.wiki-mermaid svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.wiki-video { margin: 28px 0; }
+.wiki-video video { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.wiki-mermaid .wiki-mermaid-source {
+  padding: 18px;
+  overflow: auto;
+  border: 1px solid var(--wiki-line);
+  border-radius: 7px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.wiki-code-copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 160ms ease;
+}
+.wiki-code-copy:hover { opacity: .65; }
+.wiki-code-copy:focus-visible { outline: 2px solid var(--wiki-foreground); outline-offset: 3px; }
+.wiki-code-copy svg { width: 15px; height: 15px; }
+.wiki-code-copy .check-icon { display: none; }
+.wiki-code-copy[data-copied="true"] .copy-icon { display: none; }
+.wiki-code-copy[data-copied="true"] .check-icon { display: block; }
+.wiki-article pre code { padding: 0; background: transparent; font-size: inherit; }
+/* VS Code dark+ token palette */
+.tok-com { color: #6a9955; font-style: italic; }
+.tok-str { color: #ce9178; }
+.tok-num { color: #b5cea8; }
+.tok-kw { color: #c586c0; }
+.tok-key { color: #569cd6; }
+.tok-cnst { color: #569cd6; }
+.tok-fn { color: #dcdcaa; }
+.wiki-article table { width: 100%; margin: 28px 0; border-collapse: collapse; font-size: clamp(14px, 1.3vw, 19px); }
+.wiki-article th, .wiki-article td { padding: 9px 10px; border: 1px solid var(--wiki-line); text-align: left; vertical-align: top; }
+.wiki-article th { background: var(--wiki-surface); font-weight: 400; }
+.wiki-article hr { margin: 36px 0; border: 0; border-top: 1px solid var(--wiki-line); }
+.wiki-loading, .wiki-error { color: var(--wiki-muted); }
+.wiki-error { color: #ff9d9d; }
+.wiki-note-meta { margin: -16px 0 34px; color: var(--wiki-muted); font-size: 14px; }
+
+@media (max-width: 720px) {
+  /* The taskbar wraps on its own when the brand and the nav stop fitting, so
+     there is no stacked-header rule here any more. */
+  .wiki-shell { display: block; }
+  /* The drawer becomes a bar under the taskbar: one row holding the search and
+     a chevron, with the note list hanging out of it as an overlay. The note
+     starts at the top of the screen instead of below a tall block, and the bar
+     stays put while the note scrolls. */
+  .wiki-sidebar {
+    z-index: 4;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 12px 5vw;
+    border-right: 0;
+    border-bottom: 1px solid var(--wiki-line);
+    background: rgba(0, 0, 0, .9);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+  /* Collapsing has no meaning once the drawer is a bar, so the desktop state is
+     ignored here rather than leaving the bar hidden. */
+  .wiki-shell.is-toc-collapsed .wiki-sidebar { display: block; transform: none; }
+  .wiki-sidebar-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    width: auto;
+  }
+  .wiki-sidebar-header, .wiki-sidebar-toggle, .wiki-sidebar-grip { display: none; }
+  /* iOS zooms the page in on a field smaller than 16px, so the bar's search is
+     set at 16 even though the rest of the drawer's type is 14. The extra
+     padding gives the field a finger-sized box (the label is the hit area). */
+  #wiki-search { padding: 7px 2px 6px; font-size: 16px; }
+  .wiki-list-toggle {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--wiki-line);
+    border-radius: 9px;
+    background: none;
+    color: var(--wiki-muted);
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: color .18s ease, border-color .18s ease, background-color .18s ease;
+  }
+  .wiki-list-toggle svg { width: 16px; height: 16px; transition: transform .22s ease; }
+  .wiki-list-toggle[aria-expanded="true"] { color: #fff; border-color: rgba(245, 245, 245, .45); background: rgba(245, 245, 245, .08); }
+  .wiki-list-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+  /* The list overlays the note instead of pushing it: opening it is a detour,
+     and picking a note closes it again (see wiki.js). It unfolds from under the
+     bar — max-height (plus a fade) rather than display, so the reveal is
+     animated and the box keeps its own shadow, which `overflow: hidden` does
+     not clip. */
+  .wiki-sidebar-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 5vw;
+    background: rgba(4, 4, 4, .98);
+    box-shadow: 0 28px 56px rgba(0, 0, 0, .7);
+    visibility: hidden;
+    opacity: 0;
+    transition: max-height .3s cubic-bezier(.3, .85, .35, 1), opacity .16s ease,
+      visibility 0s linear .3s;
+  }
+  .wiki-shell.is-list-open .wiki-sidebar-list {
+    max-height: 62svh;
+    visibility: visible;
+    opacity: 1;
+    transition: max-height .3s cubic-bezier(.3, .85, .35, 1), opacity .18s ease .04s,
+      visibility 0s;
+  }
+  /* The list itself is the scroller, so the status line above it stays put. Its
+     bar is hidden like the drawer's. */
+  .wiki-sidebar-list .wiki-note-list {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 22px;
+    scrollbar-width: none;
+  }
+  .wiki-sidebar-list .wiki-note-list::-webkit-scrollbar { width: 0; height: 0; }
+  .wiki-sidebar-list .wiki-status { margin: 10px 0; }
+  /* Touch rows: the pointer-sized 28px of the desktop list is too short to hit. */
+  .wiki-note-link, .wiki-folder-name { padding-top: 10px; padding-bottom: 10px; }
+  .wiki-folder-arrow { height: 40px; }
+  .wiki-article { padding: 38px 6vw 80px; }
+}
+
+/* Loading indicator: a gyro — two rings on shifted X/Y axes, revolving so the
+   tilt reads as depth — drawn on a canvas as a pure function of time, with the
+   RTM logo at its centre over an indeterminate progress bar (see showLoader in
+   wiki.js). */
+.wiki-loader {
+  display: grid;
+  place-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 0 12px;
+}
+.wiki-loader-canvas {
+  display: block;
+  width: min(220px, 62vw);
+  aspect-ratio: 16 / 10;
+}
+.wiki-loader-bar {
+  position: relative;
+  width: min(240px, 66vw);
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(245, 245, 245, .14);
+}
+.wiki-loader-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 34%;
+  border-radius: 2px;
+  background: var(--wiki-foreground);
+  transform: translateX(-100%);
+  animation: wiki-bar-slide 1.15s cubic-bezier(.45, .05, .55, .95) infinite;
+}
+@keyframes wiki-bar-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(294%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wiki-loader-bar-fill { animation: none; width: 100%; transform: none; }
+  .wiki-top { transition: none; }
+  .wiki-search-label::after { transition: none; }
+  .wiki-sidebar-list,
+  .wiki-shell.is-list-open .wiki-sidebar-list { transition: none; }
+}
+
+/* The Architecture nav item opens the wiki's mind map in a full-screen panel
+   (an iframe isolates the graph's styles and scripts; see wiki.js). */
+.wiki-nav-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+  cursor: pointer;
+}
+.wiki-nav-button:hover { opacity: .65; }
+.wiki-mindmap {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  /* The body's scroll-lock padding cannot reach a fixed element: pay the
+     scrollbar gap back here too so the panel keeps its centred position.
+     Set by lockPage() in wiki.js. */
+  padding-right: var(--wiki-scrollbar-gap, 0px);
+  background: rgba(0, 0, 0, .72);
+}
+/* `hidden` must win over the grid display above (author rules beat the UA
+   `[hidden] { display: none }`, which otherwise leaves the panel unstoppable). */
+.wiki-mindmap[hidden] { display: none; }
+.wiki-mindmap-panel {
+  position: relative;
+  width: 85vw;
+  height: 85vh;
+  overflow: hidden;
+  border: 1px solid var(--wiki-line);
+  border-radius: 12px;
+  background: #101010;
+}
+/* The graph takes a moment to read and settle: the panel shows the same gyro as
+   the note reader until the iframe reports that it has drawn (see wiki.js), then
+   fades it away to reveal the finished graph underneath. */
+.wiki-mindmap-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  background: #101010;
+  opacity: 1;
+  /* Matches MINDMAP_FADE in wiki.js. */
+  transition: opacity .32s ease;
+}
+.wiki-mindmap-loader[hidden] { display: none; }
+.wiki-mindmap-loader.is-done { opacity: 0; }
+.wiki-mindmap-frame,
+.wiki-mindmap-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+/* The iframe paints white until its own document does — keep the panel's dark
+   surface behind it — and it is held transparent until the overlay reveals the
+   finished graph, which it then fades in with. */
+.wiki-mindmap-frame iframe { background: #101010; }
+.wiki-mindmap-frame { opacity: 0; transition: opacity .45s ease; }
+.wiki-mindmap-frame.is-ready { opacity: 1; }
+.wiki-mindmap-close {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(245, 245, 245, .24);
+  border-radius: 8px;
+  background: #101010;
+  color: var(--wiki-foreground);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+.wiki-mindmap-close:hover { background: #1c1c1c; }
+body.wiki-mindmap-open { overflow: hidden; }
